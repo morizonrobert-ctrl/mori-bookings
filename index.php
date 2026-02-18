@@ -1,30 +1,40 @@
 <?php
+// index.php - Modified with Guest Mode
 
-
-// ensure session started
+// Ensure session is started
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// if no authenticated user, provide a guest user context
-if (!isset($_SESSION['user'])) {
-    $_SESSION['user'] = [
-        'id' => 0,
-        'username' => 'guest',
-        'role' => 'guest',
-        'display_name' => 'Guest',
-        'is_guest' => true
-    ];
+// Guest mode: if no authenticated user, set a guest session context
+if (!isset($_SESSION['user_id'])) {
+    // Only set guest data if not already present
+    if (!isset($_SESSION['guest_user'])) {
+        $_SESSION['guest_user'] = [
+            'id' => 0,
+            'username' => 'guest',
+            'role' => 'guest',
+            'display_name' => 'Guest',
+            'is_guest' => true
+        ];
+    }
+    // Define constant for quick checks (optional)
+    if (!defined('IS_GUEST')) {
+        define('IS_GUEST', true);
+    }
+} else {
+    if (!defined('IS_GUEST')) {
+        define('IS_GUEST', false);
+    }
+    // Ensure guest session is cleared when logged in
+    if (isset($_SESSION['guest_user'])) {
+        unset($_SESSION['guest_user']);
+    }
 }
 
-// optional constant for quick checks
-if (!defined('IS_GUEST')) {
-    define('IS_GUEST', ($_SESSION['user']['is_guest'] ?? false) === true);
-}
-// ...existing code...
-
+// Now include the main initialization (which may also start session, but that's fine)
 require_once 'includes/init.php';
- 
+
 // Get Kenyan destinations
 $db = Mori\Database::getInstance();
 $kenyanData = $db->fetch("SELECT setting_value FROM system_settings WHERE setting_key = 'major_cities'");
@@ -36,7 +46,6 @@ $popularRoutes = json_decode($popularRoutesData['setting_value'] ?? '[]', true) 
 
 // Get featured buses
 $featuredBuses = $db->fetchAll("SELECT * FROM buses WHERE status = 'active' ORDER BY RAND() LIMIT 4");
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -51,96 +60,78 @@ $featuredBuses = $db->fetchAll("SELECT * FROM buses WHERE status = 'active' ORDE
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <style>
-        /* Modern Navbar */
-
-
-.nav-toggle {
-    display: none;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-.nav-toggle span {
-    width: 25px;
-    height: 3px;
-    background: #333;
-    margin: 3px 0;
-    transition: 0.3s;
-}
-
-
-
-.btn-nav {
-    background: #4CAF50;
-    color: white !important;
-    padding: 0.5rem 1.5rem !important;
-}
-
-/* Dropdown */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    right: 0;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    min-width: 200px;
-    z-index: 100;
-}
-
-.dropdown:hover .dropdown-menu {
-    display: block;
-}
-
-.dropdown-menu li {
-    list-style: none;
-}
-
-.dropdown-menu a {
-    display: block;
-    padding: 0.8rem 1.5rem !important;
-    color: #333 !important;
-    border-radius: 0 !important;
-}
-
-.dropdown-menu a:hover {
-    background: #f8f9fa !important;
-    color: #4CAF50 !important;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .nav-toggle {
-        display: flex;
-    }
-    
-    .nav-menu {
-        display: none;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background: white;
-        flex-direction: column;
-        padding: 2rem;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-    
-    .nav-menu.active {
-        display: flex;
-    }
-    
-    .dropdown-menu {
-        position: static;
-        box-shadow: none;
-        padding-left: 1rem;
-    }
-}
+        /* Modern Navbar (existing styles) */
+        .nav-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+        }
+        .nav-toggle span {
+            width: 25px;
+            height: 3px;
+            background: #333;
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+        .btn-nav {
+            background: #4CAF50;
+            color: white !important;
+            padding: 0.5rem 1.5rem !important;
+        }
+        .dropdown {
+            position: relative;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            min-width: 200px;
+            z-index: 100;
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu li {
+            list-style: none;
+        }
+        .dropdown-menu a {
+            display: block;
+            padding: 0.8rem 1.5rem !important;
+            color: #333 !important;
+            border-radius: 0 !important;
+        }
+        .dropdown-menu a:hover {
+            background: #f8f9fa !important;
+            color: #4CAF50 !important;
+        }
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: flex;
+            }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 2rem;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+            .nav-menu.active {
+                display: flex;
+            }
+            .dropdown-menu {
+                position: static;
+                box-shadow: none;
+                padding-left: 1rem;
+            }
+        }
     </style>
 </head>
 <body>

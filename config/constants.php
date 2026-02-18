@@ -23,6 +23,9 @@ define('MPESA_CALLBACK_URL', BASE_URL . 'api/mpesa_callback.php');
 // SMS Configuration
 define('SMS_API_KEY', 'YOUR_SMS_API_KEY');
 define('SMS_SENDER_ID', 'MORIBOOK');
+// Africa's Talking (fill with your credentials)
+define('AT_USERNAME', 'YOUR_AT_USERNAME');
+define('AT_API_KEY', 'YOUR_AT_API_KEY');
 
 // Email Configuration
 define('SMTP_HOST', 'smtp.gmail.com');
