@@ -13,7 +13,9 @@ class Database {
             $this->connection = new \PDO($dsn, DB_USER, DB_PASS);
             $this->connection->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             $this->connection->setAttribute(\PDO::ATTR_DEFAULT_FETCH_MODE, \PDO::FETCH_ASSOC);
-            $this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, false);
+            // Enable emulated prepares to allow repeated named parameters
+            // (some queries in the code reuse the same named placeholder multiple times)
+            $this->connection->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
             
             // Set timezone to Nairobi
             $this->connection->exec("SET time_zone = '+03:00'");
