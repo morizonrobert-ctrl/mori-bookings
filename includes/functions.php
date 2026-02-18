@@ -157,6 +157,18 @@ function requireAdmin() {
 }
 
 /**
+ * Check if current (or given) user is admin
+ */
+function isAdmin($userId = null) {
+    if ($userId === null) {
+        $userId = currentUserId();
+    }
+    if (!$userId) return false;
+    $admin = new Mori\Admin();
+    return $admin->isAdmin($userId);
+}
+
+/**
  * Generate random string
  */
 function generateRandomString($length = 10) {
