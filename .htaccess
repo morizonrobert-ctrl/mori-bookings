@@ -1,0 +1,31 @@
+RewriteEngine On
+RewriteBase /
+
+# Prevent directory listing
+Options -Indexes
+
+# Security headers
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-XSS-Protection "1; mode=block"
+Header set X-Content-Type-Options "nosniff"
+Header set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Rewrite rules
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php?url=$1 [QSA,L]
+
+# API rewrite
+RewriteRule ^api/(.*)$ api/index.php?endpoint=$1 [QSA,L]
+
+# Protect sensitive files
+<FilesMatch "\.(env|log|ini|sql)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Cache static files
+<FilesMatch "\.(css|js|jpg|jpeg|png|gif|ico)$">
+    ExpiresActive On
+    ExpiresDefault "access plus 1 month"
+</FilesMatch>

@@ -1,0 +1,19 @@
+{
+    "name": "mori/bookings",
+    "description": "MORI Bus Booking System",
+    "type": "project",
+    "require": {
+        "php": ">=7.4",
+        "ext-pdo": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "tecnickcom/tcpdf": "^6.6",
+        "phpmailer/phpmailer": "^6.6",
+        "vlucas/phpdotenv": "^5.5"
+    },
+    "autoload": {
+        "psr-4": {
+            "Mori\\": "includes/classes/"
+        }
+    }
+}
