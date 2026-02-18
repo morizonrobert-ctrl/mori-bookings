@@ -157,6 +157,45 @@ function requireAdmin() {
 }
 
 /**
+ * Require a specific role (or roles) for access
+ * @param string|array $roles Role name or array of role names. Special role 'admin' allows both 'admin' and 'super_admin'.
+ */
+function requireRole($roles)
+{
+    requireAuth();
+
+    $userId = currentUserId();
+    $user = new Mori\User();
+
+    if (is_string($roles)) {
+        $roles = [$roles];
+    }
+
+    // If 'admin' is requested, allow both admin and super_admin
+    if (in_array('admin', $roles, true)) {
+        if ($user->isAdmin($userId)) {
+            return true;
+        }
+    }
+
+    // Check for super_admin explicitly
+    if (in_array('super_admin', $roles, true)) {
+        if ($user->isSuperAdmin($userId)) {
+            return true;
+        }
+    }
+
+    // Fallback: check exact role(s)
+    $currentRole = $user->getUserRole($userId);
+    if (in_array($currentRole, $roles, true)) {
+        return true;
+    }
+
+    // Deny access
+    redirect(BASE_URL . 'index.php?error=Access denied');
+}
+
+/**
  * Check if current (or given) user is admin
  */
 function isAdmin($userId = null) {

@@ -16,6 +16,45 @@ class AuthSystem {
         this.bindEvents();
         this.loadGoogleAuth();
     }
+
+    apiPath(path) {
+        // Use absolute BASE_URL if available, otherwise use relative path
+        const base = (window.BASE_URL && window.BASE_URL.length) ? window.BASE_URL : '';
+        // Ensure no double slashes
+        return base.replace(/\/$/, '') + '/' + path.replace(/^\//, '');
+    }
+
+    async parseResponse(response, errorElementId) {
+        if (!response.ok) {
+            // Try to read response text for debugging
+            let text = '';
+            try {
+                text = await response.text();
+            } catch (e) {
+                console.error('Failed to read error body', e);
+            }
+            console.error('API returned error', response.status, text);
+            this.showError(errorElementId, text || 'Network error. Please try again.');
+            return null;
+        }
+
+        // Attempt to parse JSON, fallback to text on failure
+        try {
+            const clone = response.clone();
+            try {
+                return await response.json();
+            } catch (e) {
+                const text = await clone.text();
+                console.error('Invalid JSON response', e, text);
+                this.showError(errorElementId, 'Server returned invalid response');
+                return null;
+            }
+        } catch (e) {
+            console.error('Response parsing error', e);
+            this.showError(errorElementId, 'Network error. Please try again.');
+            return null;
+        }
+    }
     
     createModal() {
         // Create modal HTML
@@ -443,15 +482,16 @@ class AuthSystem {
         spinner.style.display = 'inline-block';
         
         try {
-            const response = await fetch('api/auth.php?action=login', {
+            const response = await fetch(this.apiPath('api/auth.php?action=login'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
             });
-            
-            const result = await response.json();
+
+            const result = await this.parseResponse(response, 'loginEmailError');
+            if (!result) return;
             
             if (result.success) {
                 // Show success message
@@ -505,15 +545,16 @@ class AuthSystem {
         spinner.style.display = 'inline-block';
         
         try {
-            const response = await fetch('api/auth.php?action=register', {
+            const response = await fetch(this.apiPath('api/auth.php?action=register'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data)
             });
-            
-            const result = await response.json();
+
+            const result = await this.parseResponse(response, 'registerEmailError');
+            if (!result) return;
             
             if (result.success) {
                 // Show success message
@@ -561,15 +602,16 @@ class AuthSystem {
         spinner.style.display = 'inline-block';
         
         try {
-            const response = await fetch('api/auth.php?action=forgot_password', {
+            const response = await fetch(this.apiPath('api/auth.php?action=forgot_password'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ email })
             });
-            
-            const result = await response.json();
+
+            const result = await this.parseResponse(response, 'resetEmailError');
+            if (!result) return;
             
             if (result.success) {
                 // Show success message

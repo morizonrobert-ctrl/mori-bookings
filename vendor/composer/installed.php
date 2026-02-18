@@ -3,7 +3,7 @@
         'name' => 'mori/bookings',
         'pretty_version' => 'dev-main',
         'version' => 'dev-main',
-        'reference' => 'c60bade87bb96a1d9df6935d63c58eb3a1e58ba2',
+        'reference' => 'aba5c9ba97a1367c87c7bb1b8c8787ef279077ee',
         'type' => 'project',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -121,7 +121,7 @@
         'mori/bookings' => array(
             'pretty_version' => 'dev-main',
             'version' => 'dev-main',
-            'reference' => 'c60bade87bb96a1d9df6935d63c58eb3a1e58ba2',
+            'reference' => 'aba5c9ba97a1367c87c7bb1b8c8787ef279077ee',
             'type' => 'project',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),

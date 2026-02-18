@@ -73,3 +73,7 @@ if ($isLoggedIn) {
 
 <!-- Authentication Modal (Will be added via JavaScript) -->
 <div id="authModal"></div>
+<script>
+    // Expose BASE_URL to client-side scripts
+    window.BASE_URL = '<?php echo rtrim(BASE_URL, "/"); ?>/';
+</script>
