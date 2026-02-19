@@ -221,11 +221,16 @@ function validatePhone($phone) {
     return preg_match('/^(\+254|0)[17]\d{8}$/', $phone);
 }
 
-/**
- * Validate email
+/**n+ * Validate email using egulias/email-validator when available.
+ * Falls back to PHP filter_var if the library is not present.
  */
 function validateEmail($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
+    if (class_exists('\Egulias\\EmailValidator\\EmailValidator') && class_exists('\Egulias\\EmailValidator\\Validation\\RFCValidation')) {
+        $validator = new \Egulias\EmailValidator\EmailValidator();
+        $rfcValidation = new \Egulias\EmailValidator\Validation\RFCValidation();
+        return $validator->isValid($email, $rfcValidation);
+    }
+    return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
 /**
